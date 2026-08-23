@@ -1,0 +1,43 @@
+server:
+  port: 8080
+  shutdown: graceful          # enable graceful shutdown
+
+spring:
+  application:
+    name: api-skeleton
+
+  lifecycle:
+    timeout-per-shutdown-phase: 20s   # give in-flight requests 20s to finish
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/skeleton_db?useSSL=false&serverTimezone=Asia/Jakarta&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 10
+      # HikariCP also shuts down its pool gracefully on context close
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+
+  jackson:
+    default-property-inclusion: non_null
+
+jwt:
+  secret: "ChangeThisSuperSecretKeyForJwtSigningMinimum256BitsLong!"
+  expiration-ms: 86400000        # 24 hours
+  refresh-expiration-ms: 604800000 # 7 days (reserved for future use)
+
+logging:
+  level:
+    root: INFO
+    com.skeleton.api: DEBUG
