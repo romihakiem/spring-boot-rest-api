@@ -1,9 +1,10 @@
 # REST API Skeleton — Spring Boot + MySQL + JWT
 
-Skeleton REST API standar untuk Java Spring Boot dengan autentikasi JWT,
-CRUD lengkap, pagination, dan graceful shutdown.
+Skeleton REST API standar untuk Java Spring Boot dengan autentikasi JWT, CRUD lengkap, pagination, dan graceful
+shutdown.
 
 ## Tech Stack
+
 - Java 17
 - Spring Boot 3.2.5 (Web, Data JPA, Security, Validation)
 - MySQL 8
@@ -72,12 +73,15 @@ src/main/java/com/skeleton/api/
 ## Autentikasi
 
 Semua endpoint di `/api/items/**` dan `/api/users/**` butuh header:
+
 ```
 Authorization: Bearer <token>
 ```
+
 `/api/users/**` khusus role `ADMIN`.
 
 ### Register
+
 ```bash
 curl -X POST http://localhost:8080/api/auth/register \
   -H "Content-Type: application/json" \
@@ -85,14 +89,17 @@ curl -X POST http://localhost:8080/api/auth/register \
 ```
 
 ### Login
+
 ```bash
 curl -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"romi@example.com","password":"secret123"}'
 ```
+
 Response berisi `data.token` yang dipakai untuk request selanjutnya.
 
 ### Me (current user)
+
 ```bash
 curl http://localhost:8080/api/auth/me \
   -H "Authorization: Bearer <token>"
@@ -100,21 +107,23 @@ curl http://localhost:8080/api/auth/me \
 
 ## Item CRUD
 
-| Method | Endpoint            | Keterangan                                   |
-|--------|----------------------|-----------------------------------------------|
-| POST   | /api/items            | Buat item baru (owner = user login)          |
-| GET    | /api/items             | List item (pagination + search + filter)     |
-| GET    | /api/items/{id}        | Detail item                                  |
-| PUT    | /api/items/{id}        | Update item (hanya owner atau admin)         |
-| DELETE | /api/items/{id}        | Hapus item (hanya owner atau admin)          |
+| Method | Endpoint        | Keterangan                               |
+|--------|-----------------|------------------------------------------|
+| POST   | /api/items      | Buat item baru (owner = user login)      |
+| GET    | /api/items      | List item (pagination + search + filter) |
+| GET    | /api/items/{id} | Detail item                              |
+| PUT    | /api/items/{id} | Update item (hanya owner atau admin)     |
+| DELETE | /api/items/{id} | Hapus item (hanya owner atau admin)      |
 
 Query params untuk `GET /api/items`:
+
 - `page` (default 0), `size` (default 10, max 100)
 - `sortBy` (default `id`), `direction` (`asc`/`desc`, default `desc`)
 - `search` — cari berdasarkan nama item
 - `category` — filter kategori exact match
 
 Contoh:
+
 ```bash
 curl "http://localhost:8080/api/items?page=0&size=10&search=laptop&category=Elektronik" \
   -H "Authorization: Bearer <token>"
@@ -123,12 +132,15 @@ curl "http://localhost:8080/api/items?page=0&size=10&search=laptop&category=Elek
 ## Format Response
 
 Semua response dibungkus `ApiResponse`:
+
 ```json
 {
   "success": true,
   "message": "Items fetched successfully",
   "data": {
-    "content": [ ... ],
+    "content": [
+      ...
+    ],
     "pageNumber": 0,
     "pageSize": 10,
     "totalElements": 25,
@@ -141,11 +153,14 @@ Semua response dibungkus `ApiResponse`:
 ```
 
 Error response:
+
 ```json
 {
   "success": false,
   "message": "Validation failed",
-  "errors": { "email": "Email must be valid" },
+  "errors": {
+    "email": "Email must be valid"
+  },
   "timestamp": "2026-08-21T10:00:00Z"
 }
 ```
@@ -153,6 +168,7 @@ Error response:
 ## Graceful Shutdown
 
 Diaktifkan lewat `application.yml`:
+
 ```yaml
 server:
   shutdown: graceful
@@ -160,19 +176,16 @@ spring:
   lifecycle:
     timeout-per-shutdown-phase: 20s
 ```
-Saat aplikasi menerima sinyal stop (SIGTERM / Ctrl+C), Tomcat berhenti
-menerima request baru tapi tetap menyelesaikan request yang sedang berjalan
-sampai maksimal 20 detik sebelum context benar-benar ditutup.
-`GracefulShutdownConfig` menambahkan logging pada proses ini dan menjadi
-tempat untuk membersihkan resource tambahan (thread pool custom, scheduler,
-koneksi eksternal, dll) lewat `@PreDestroy`.
+
+Saat aplikasi menerima sinyal stop (SIGTERM / Ctrl+C), Tomcat berhenti menerima request baru tapi tetap menyelesaikan
+request yang sedang berjalan sampai maksimal 20 detik sebelum context benar-benar ditutup.
+`GracefulShutdownConfig` menambahkan logging pada proses ini dan menjadi tempat untuk membersihkan resource tambahan
+(thread pool custom, scheduler, koneksi eksternal, dll) lewat `@PreDestroy`.
 
 ## Catatan
 
-- Password tidak pernah dikembalikan di response mana pun — DTO
-  (`UserResponse`) tidak memiliki field password sama sekali.
-- Role disimpan sebagai enum (`ADMIN`, `USER`) dan dipetakan ke Spring
-  Security authority `ROLE_ADMIN` / `ROLE_USER`.
-- `ItemRepository` menggunakan `JpaSpecificationExecutor` sehingga filter
-  search/category mudah dikembangkan lebih lanjut (misalnya range harga,
-  filter status, dll) tanpa mengubah signature method.
+- Password tidak pernah dikembalikan di response mana pun — DTO (`UserResponse`) tidak memiliki field password sama
+  sekali.
+- Role disimpan sebagai enum (`ADMIN`, `USER`) dan dipetakan ke Spring Security authority `ROLE_ADMIN` / `ROLE_USER`.
+- `ItemRepository` menggunakan `JpaSpecificationExecutor` sehingga filter search/category mudah dikembangkan lebih
+  lanjut (misalnya range harga, filter status, dll) tanpa mengubah signature method.
