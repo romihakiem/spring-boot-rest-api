@@ -49,6 +49,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PageResponse<ItemResponse> getAll(Pageable pageable, String search, String category) {
         Specification<Item> spec = buildSpecification(search, category);
         Page<ItemResponse> page = itemRepository.findAll(spec, pageable).map(ItemResponse::fromEntity);
@@ -56,6 +57,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ItemResponse getById(Long id) {
         return ItemResponse.fromEntity(getItemOrThrow(id));
     }
